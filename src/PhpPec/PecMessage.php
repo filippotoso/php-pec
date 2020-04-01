@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Questo file fa parte del progetto php-pec.
  * Il codice è fornito senza alcuna garanzia e distribuito
@@ -67,7 +68,7 @@ class PecMessage extends Message implements PecMessageInterface
          * Estraggo il campo X-Ricevuta
          */
         $regex = '/X-Ricevuta: (non-accettazione|accettazione|preavviso-errore-consegna|presa-in-carico|rilevazione-virus|errore-consegna|avvenuta-consegna)/';
-        if(preg_match($regex, $rawHeaders, $match) > 0) {
+        if (preg_match($regex, $rawHeaders, $match) > 0) {
             $this->ricevuta = $match[1];
         }
 
@@ -75,7 +76,7 @@ class PecMessage extends Message implements PecMessageInterface
          * Estraggo il campo X-TipoRicevuta
          */
         $regex = '/X-TipoRicevuta: (completa|breve|sintetica)/';
-        if(preg_match($regex, $rawHeaders, $match) > 0) {
+        if (preg_match($regex, $rawHeaders, $match) > 0) {
             $this->tipoRicevuta = $match[1];
         }
 
@@ -83,7 +84,7 @@ class PecMessage extends Message implements PecMessageInterface
          * Estraggo il campo X-Trasporto
          */
         $regex = '/X-Trasporto: (posta-certificata|errore)/';
-        if(preg_match($regex, $rawHeaders, $match) > 0) {
+        if (preg_match($regex, $rawHeaders, $match) > 0) {
             $this->trasporto = $match[1];
         }
 
@@ -91,7 +92,7 @@ class PecMessage extends Message implements PecMessageInterface
          * Estraggo il campo X-Riferimento-Message-ID
          */
         $regex = '/X-Riferimento-Message-ID: (<\S+>)/';
-        if(preg_match($regex, $rawHeaders, $match) > 0) {
+        if (preg_match($regex, $rawHeaders, $match) > 0) {
             $this->idMessaggioDiRiferimento = $match[1];
         }
     }
@@ -121,10 +122,10 @@ class PecMessage extends Message implements PecMessageInterface
          * Se si tratta di una pec in ingresso,
          * devo trattare il campo from come sopra descritto
          */
-        if($this->getTrasporto()) {
-            if(is_array($mittente) && count($mittente) > 0) {
-                preg_match('/Per conto di: ([\w-.]+@[\w.-]+)/', $mittente['name'], $match);
-                if(count($match) == 2) {
+        if ($this->getTrasporto()) {
+            if (is_array($mittente) && count($mittente) > 0) {
+                preg_match('/Per conto di: ([\w\-.]+@[\w.\-]+)/', $mittente['name'], $match);
+                if (count($match) == 2) {
                     return $match[1];
                 }
                 return $mittente['name'];
@@ -171,7 +172,7 @@ class PecMessage extends Message implements PecMessageInterface
     {
         $allegati = array();
         foreach ($this->getAttachments() as $attachment) {
-            if(! in_array($attachment->getFileName(), $this->allegatiDiServizio)) {
+            if (!in_array($attachment->getFileName(), $this->allegatiDiServizio)) {
                 $allegati[] = $attachment;
             }
         }
@@ -262,7 +263,7 @@ class PecMessage extends Message implements PecMessageInterface
      */
     function verificaPec()
     {
-        $nonce = md5(time().rand(10000, 99999));
+        $nonce = md5(time() . rand(10000, 99999));
         $msg = $this->getRawBody();
 
         file_put_contents("/tmp/pec-message.$nonce", $msg);
@@ -276,7 +277,7 @@ class PecMessage extends Message implements PecMessageInterface
     function getIdMessaggio()
     {
         $headers = $this->getHeaders();
-        if(isset($headers->message_id)) {
+        if (isset($headers->message_id)) {
             return $headers->message_id;
         }
         return null;
@@ -287,7 +288,7 @@ class PecMessage extends Message implements PecMessageInterface
      */
     function getRawBody()
     {
-        if($this->rawBody == null) {
+        if ($this->rawBody == null) {
             $this->rawBody = imap_fetchbody($this->imapStream, $this->uid, '', FT_UID | FT_PEEK);
         }
         return $this->rawBody;
@@ -364,7 +365,7 @@ class PecMessage extends Message implements PecMessageInterface
             }
         }
 
-        if (! empty($structure->parts)) {
+        if (!empty($structure->parts)) {
             if (isset($structure->subtype) && strtolower($structure->subtype) === 'rfc822') {
                 $this->processStructure($structure->parts[0], $partIdentifier);
             } else {
