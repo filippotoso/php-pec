@@ -153,6 +153,9 @@ class PecMessage extends Message implements PecMessageInterface
     function getTestiOriginali($inHtml = false)
     {
         $postacert = $this->getAttachments('postacert.eml');
+
+        $postacert = is_array($postacert) ? array_shift($postacert) : $postacert;
+
         /* @var Attachment $postacert */
         $parser = new PostacertParser($postacert->getData());
         return $parser->getFragments();
